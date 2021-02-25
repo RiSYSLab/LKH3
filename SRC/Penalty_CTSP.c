@@ -3,6 +3,7 @@
 
 GainType Penalty_CTSP()
 {
+    //printPCTSPRoute();
     static Node *StartRoute = 0;
     Node *N, *N1, *N2, *CurrentRoute;
     GainType P = 0;

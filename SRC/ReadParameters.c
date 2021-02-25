@@ -671,7 +671,7 @@ void ReadParameters()
                 eprintf("DEPOT: integer expected");
             if (MTSPDepot <= 0)
                 eprintf("DEPOT: positive integer expected");
-        } else if (!strcmp(Keyword, "EOF")) {
+        }else if (!strcmp(Keyword, "EOF")) {
             break;
         } else if (!strcmp(Keyword, "EDGE_FILE")) {
             if (!(Name = GetFileName(0)))
@@ -751,7 +751,7 @@ void ReadParameters()
         } else if (!strcmp(Keyword, "INITIAL_TOUR_ALGORITHM")) {
             if (!(Token = strtok(0, Delimiters)))
                 eprintf("INITIAL_TOUR_ALGORITHM: "
-                        "BORUVKA, CTSP, CVRP, GREEDY, MOORE, MTSP,\n"
+                        "BORUVKA, CTSP, PCTSP, CVRP, GREEDY, MOORE, MTSP,\n"
                         "NEAREST-NEIGHBOR, QUICK-BORUVKA, SIERPINSKI, "
                         "SOP, TSPDL, or WALK expected");
             for (i = 0; i < strlen(Token); i++)
@@ -760,6 +760,8 @@ void ReadParameters()
                 InitialTourAlgorithm = BORUVKA;
             else if (!strncmp(Token, "CTSP", strlen(Token)))
                 InitialTourAlgorithm = CTSP_ALG;
+            else if (!strncmp(Token, "PCTSP", strlen(Token)))
+                InitialTourAlgorithm = PCTSP_ALG;
             else if (!strncmp(Token, "CVRP", strlen(Token)))
                 InitialTourAlgorithm = CVRP_ALG;
             else if (!strncmp(Token, "GREEDY", strlen(Token)))

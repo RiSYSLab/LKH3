@@ -103,7 +103,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>SRC\INCLUDE</AdditionalIncludeDirectories>
-      <Optimization>Full</Optimization>
+      <Optimization>Disabled</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
@@ -112,6 +112,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>SRC\INCLUDE</AdditionalIncludeDirectories>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -146,6 +147,7 @@
     <ClCompile Include="src\Create_POPMUSIC_CandidateSet.c" />
     <ClCompile Include="src\CTSP_InitialTour.c" />
     <ClCompile Include="src\CVRP_InitialTour.c" />
+    <ClCompile Include="SRC\debug.c" />
     <ClCompile Include="src\Delaunay.c" />
     <ClCompile Include="src\Distance.c" />
     <ClCompile Include="src\Distance_MTSP.c" />
@@ -164,6 +166,7 @@
     <ClCompile Include="src\FreeStructures.c" />
     <ClCompile Include="src\fscanint.c" />
     <ClCompile Include="src\Gain23.c" />
+    <ClCompile Include="SRC\PCTSP_InitialTour.c" />
     <ClCompile Include="src\GenerateCandidates.c" />
     <ClCompile Include="src\Genetic.c" />
     <ClCompile Include="src\GeoConversion.c" />
@@ -199,6 +202,7 @@
     <ClCompile Include="src\NormalizeSegmentList.c" />
     <ClCompile Include="src\OrderCandidateSet.c" />
     <ClCompile Include="src\PatchCycles.c" />
+    <ClCompile Include="SRC\PCTSP_RepairTour.c" />
     <ClCompile Include="src\PDPTW_Reduce.c" />
     <ClCompile Include="src\PDTSPL_RepairTour.c" />
     <ClCompile Include="src\PDTSPL_Tree.c" />
@@ -209,12 +213,14 @@
     <ClCompile Include="src\Penalty_CTSP.c" />
     <ClCompile Include="src\Penalty_CVRP.c" />
     <ClCompile Include="src\Penalty_CVRPTW.c" />
+    <ClCompile Include="SRC\Penalty_GCTSP.c" />
     <ClCompile Include="src\Penalty_M1_PDTSP.c" />
     <ClCompile Include="src\Penalty_MLP.c" />
     <ClCompile Include="src\Penalty_MTSP.c" />
     <ClCompile Include="src\Penalty_MVRPB.c" />
     <ClCompile Include="src\Penalty_M_PDTSP.c" />
     <ClCompile Include="src\Penalty_OVRP.c" />
+    <ClCompile Include="SRC\Penalty_PCTSP.c" />
     <ClCompile Include="src\Penalty_PDPTW.c" />
     <ClCompile Include="src\Penalty_PDTSP.c" />
     <ClCompile Include="src\Penalty_PDTSPF.c" />
@@ -283,7 +289,7 @@
     <ClInclude Include="src\include\gpx.h" />
     <ClInclude Include="src\include\Hashing.h" />
     <ClInclude Include="src\include\Heap.h" />
-    <ClInclude Include="src\include\LKH.h" />
+    <ClInclude Include="SRC\INCLUDE\LKH.h" />
     <ClInclude Include="src\include\Segment.h" />
     <ClInclude Include="src\include\Sequence.h" />
   </ItemGroup>

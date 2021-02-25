@@ -41,11 +41,11 @@ GainType MergeWithTourIPT()
         CurrentPenalty = PLUS_INFINITY;
         Penalty1 = Penalty();
     }
-    N = FirstNode;
+    N = Depot;
     do {
         N->Suc->Pred = N->Next->Prev = N;
         N->SucSaved = N->Suc;
-    } while ((N = N->Suc) != FirstNode);
+    } while ((N = N->Suc) != Depot);
     do {
         Cost1 += N->Cost = C(N, N->Suc) - N->Pi - N->Suc->Pi;
         if ((N->Suc == N->Prev || N->Suc == N->Next) &&
@@ -56,29 +56,29 @@ GainType MergeWithTourIPT()
             NewDimension++;
             First = N;
         }
-    } while ((N = N->Suc) != FirstNode);
+    } while ((N = N->Suc) != Depot);
     if (NewDimension == 0) {
         CurrentPenalty = Penalty1;
         return Cost1 / Precision;
     }
 
     if (Penalty) {
-        N = FirstNode;
+        N = Depot;
         do {
             N->OldSuc = N->Suc;
             (N->Suc = N->Next)->Pred = N;
-        } while ((N = N->Suc) != FirstNode);
+        } while ((N = N->Suc) != Depot);
         CurrentPenalty = PLUS_INFINITY;
         Penalty2 = Penalty();
         do
             (N->Suc = N->OldSuc)->Pred = N;
-        while ((N = N->Suc) != FirstNode);
+        while ((N = N->Suc) != Depot);
     }
     do {
         Cost2 += N->NextCost = N->Next == N->Pred ? N->Pred->Cost :
             N->Next == N->Suc ? N->Cost :
             C(N, N->Next) - N->Pi - N->Next->Pi;
-    } while ((N = N->Suc) != FirstNode);
+    } while ((N = N->Suc) != Depot);
     OldCost1 = Cost1;
 
     /* Shrink the tours. 
@@ -209,10 +209,10 @@ GainType MergeWithTourIPT()
     }
 
     /* Expand the best tour into a full tour */
-    N = FirstNode;
+    N = Depot;
     do
         N->Mark = 0;
-    while ((N = N->Suc) != FirstNode);
+    while ((N = N->Suc) != Depot);
     N = First;
     N->Mark = N;
     do {

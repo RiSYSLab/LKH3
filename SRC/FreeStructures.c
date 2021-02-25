@@ -17,6 +17,7 @@ void FreeStructures()
         for (i = 1; i <= Dimension; i++) {
             Node *N = &NodeSet[i];
             Free(N->MergeSuc);
+            Free(N->Colors);
             N->C = 0;
         }
         Free(NodeSet);

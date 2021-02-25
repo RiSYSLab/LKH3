@@ -339,6 +339,7 @@ static int FixEdge(Node * Na, Node * Nb);
 static void Read_BACKHAUL_SECTION(void);
 static void Read_CAPACITY(void);
 static void Read_CTSP_SET_SECTION(void);
+static void Read_GCTSP_SET_SECTION(void);
 static void Read_DEMAND_DIMENSION(void);
 static void Read_DEMAND_SECTION(void);
 static void Read_DEPOT_SECTION(void);
@@ -384,7 +385,7 @@ void ReadProblem()
     FirstNode = 0;
     WeightType = WeightFormat = ProblemType = -1;
     CoordType = NO_COORDS;
-    Name = Copy("Unnamed");
+    //Name = Copy("Unnamed");
     Type = EdgeWeightType = EdgeWeightFormat = 0;
     EdgeDataFormat = NodeCoordType = DisplayDataType = 0;
     Distance = 0;
@@ -403,6 +404,8 @@ void ReadProblem()
             Read_CAPACITY();
         else if (!strcmp(Keyword, "CTSP_SET_SECTION"))
             Read_CTSP_SET_SECTION();
+        else if (!strcmp(Keyword, "GCTSP_SET_SECTION"))
+            Read_GCTSP_SET_SECTION();
         else if (!strcmp(Keyword, "DEMAND_DIMENSION"))
             Read_DEMAND_DIMENSION();
         else if (!strcmp(Keyword, "DEMAND_SECTION"))
@@ -507,6 +510,7 @@ void ReadProblem()
     if (POPMUSIC_SampleSize > Dimension)
         POPMUSIC_SampleSize = Dimension;
     Depot = &NodeSet[MTSPDepot];
+
     if (ProblemType == CVRP) {
         Node *N;
         int MinSalesmen;
@@ -529,7 +533,7 @@ void ReadProblem()
         if (Salesmen == 1)
             ProblemType = TSP;
         Penalty = Penalty_CVRP;
-    } else if (ProblemType == SOP || ProblemType == M1_PDTSP) {
+    } else if (ProblemType == SOP || ProblemType == M1_PDTSP || ProblemType == PCTSP) {
         Constraint *Con;
         Node *Ni, *Nj;
         int n, k;
@@ -554,9 +558,9 @@ void ReadProblem()
                 }
             }
         }
-        for (j = 2; j < Dim; j++) {
+        for (j = 1; j <= Dim; j++) {
             Nj = &NodeSet[j];
-            for (i = 2; i < Dim; i++) {
+            for (i = 1; i <= Dim; i++) {
                 if (i != j && Nj->C[i] == -1) {
                     Ni = &NodeSet[i];
                     Con = (Constraint *) malloc(sizeof(Constraint));
@@ -569,9 +573,15 @@ void ReadProblem()
                 }
             }
         }
-        Salesmen = 1;
-        Penalty = ProblemType == SOP ? Penalty_SOP : Penalty_M1_PDTSP;
+        if (ProblemType == SOP)
+        {
+            Salesmen = 1;
+        }
+        
+        Penalty = ProblemType == SOP ? Penalty_SOP : 
+                  ProblemType == PCTSP ? Penalty_PCTSP : Penalty_M1_PDTSP;
     }
+
     if (ProblemType == TSPTW) {
         Salesmen = 1;
         Penalty = Penalty_TSPTW;
@@ -582,6 +592,7 @@ void ReadProblem()
             eprintf("Too many salesmen/vehicles (>= DIMENSION)");
         MTSP2TSP();
     }
+    
     if (ProblemType == STTSP)
         STTSP2TSP();
     if (ProblemType == ACVRP)
@@ -590,6 +601,8 @@ void ReadProblem()
         Penalty = Penalty_CCVRP;
     else if (ProblemType == CTSP)
         Penalty = Penalty_CTSP;
+    else if (ProblemType == PCTSP)
+        Penalty = Penalty_PCTSP;
     else if (ProblemType == CVRPTW)
         Penalty = Penalty_CVRPTW;
     else if (ProblemType == MLP)
@@ -637,13 +650,31 @@ void ReadProblem()
     if (Penalty && (SubproblemSize > 0 || SubproblemTourFile))
         eprintf("Partitioning not implemented for constrained problems");
     Depot->DepotId = 1;
-    for (i = Dim + 1; i <= DimensionSaved; i++)
+   
+    for (i = Dim + 1; i <= Dim + Salesmen - 1; i++) {
         NodeSet[i].DepotId = i - Dim + 1;
-    if (Dimension != DimensionSaved) {
+    }
+    
+    if (Dimension != DimensionSaved && ProblemType != PCTSP) {
         NodeSet[Depot->Id + DimensionSaved].DepotId = 1;
         for (i = Dim + 1; i <= DimensionSaved; i++)
             NodeSet[i + DimensionSaved].DepotId = i - Dim + 1;
     }
+
+    if (ProblemType == PCTSP)
+    {
+        for (int j = 1; j <= Salesmen; j++)
+        {
+            NodeSet[Depot->Id + DimensionSaved].Colors[j] = 0;
+            for (int i = Dim + 1; i <= DimensionSaved; i++)
+                NodeSet[i + DimensionSaved].Colors[j] = 0;
+        }
+        NodeSet[Depot->Id + DimensionSaved].Colors[Depot->DepotId] = 1;
+        for (int i = Dim + 1; i <= DimensionSaved; i++)
+            NodeSet[i + DimensionSaved].Colors[NodeSet[i].DepotId] = 1;
+
+    }
+
     if (Scale < 1)
         Scale = 1;
     else {
@@ -702,8 +733,8 @@ void ReadProblem()
     C = WeightType == EXPLICIT ? C_EXPLICIT : C_FUNCTION;
     D = WeightType == EXPLICIT ? D_EXPLICIT : D_FUNCTION;
     if (ProblemType != CVRP && ProblemType != CVRPTW &&
-        ProblemType != CTSP && ProblemType != STTSP &&
-        ProblemType != TSP && ProblemType != ATSP) {
+        ProblemType != CTSP && ProblemType != GCTSP && ProblemType != STTSP &&
+        ProblemType != TSP && ProblemType != ATSP && ProblemType != PCTSP) {
         M = INT_MAX / 2 / Precision;
         for (i = Dim + 1; i <= DimensionSaved; i++) {
             for (j = 1; j <= DimensionSaved; j++) {
@@ -992,6 +1023,33 @@ static void Read_CTSP_SET_SECTION()
         }
     }
     free(ColorUsed);
+}
+
+static void Read_GCTSP_SET_SECTION()
+{
+    Node* N;
+    int Id, n;
+
+    N = FirstNode;
+    do {
+        N->Colors = (int*)calloc(Salesmen + 1, sizeof(int)); 
+    } while ((N = N->Suc) != FirstNode);
+   
+    while (fscanf(ProblemFile, "%d", &Id) > 0) { 
+        for (;;) {
+            if (fscanf(ProblemFile, "%d", &n) != 1)
+                eprintf("GCTSP_SET_SECTION: Missing -1");
+            if (n == -1)
+                break;
+            N = &NodeSet[Id];            
+            N->Colors[n] = 1;
+            if (Asymmetric)
+            {
+                N = &NodeSet[Id + DimensionSaved];
+                N->Colors[n] = 1;
+            }
+        }
+    }
 }
 
 static void Read_DEMAND_DIMENSION()
@@ -1285,10 +1343,10 @@ static void Read_EDGE_WEIGHT_SECTION()
     int i, j, n, W;
     double w;
 
-    if (ProblemType == SOP && ProblemType != M1_PDTSP) {
+    if ((ProblemType == SOP || ProblemType == PCTSP) && ProblemType != M1_PDTSP) {
         fscanint(ProblemFile, &n);
         if (n != Dimension)
-            eprintf("SOP: DIMENSION != n (%d != %d)", Dimension, n);
+            eprintf("SOP or PCTSP: DIMENSION != n (%d != %d)", Dimension, n);
     } else
         n = Dimension;
     CheckSpecificationPart();
@@ -1490,8 +1548,8 @@ static void Read_EDGE_WEIGHT_SECTION()
     if (Asymmetric) {
         for (i = 1; i <= DimensionSaved; i++)
             FixEdge(&NodeSet[i], &NodeSet[i + DimensionSaved]);
-        if (ProblemType == SOP || ProblemType == M1_PDTSP)
-            NodeSet[n].C[1] = 0;
+        if (ProblemType == SOP || ProblemType == M1_PDTSP || ProblemType == PCTSP)
+            NodeSet[n].C[1] = 0; /////////////
         Distance = Distance_ATSP;
         WeightType = -1;
     }
@@ -2003,6 +2061,8 @@ static void Read_TYPE()
         ProblemType = ATSP;
     else if (!strcmp(Type, "SOP"))
         ProblemType = SOP;
+    else if (!strcmp(Type, "PCTSP"))
+        ProblemType = PCTSP;
     else if (!strcmp(Type, "HCP"))
         ProblemType = HCP;
     else if (!strcmp(Type, "HPP"))
@@ -2059,6 +2119,8 @@ static void Read_TYPE()
         ProblemType = TSPDL;
     else if (!strcmp(Type, "CTSP"))
         ProblemType = CTSP;
+    else if (!strcmp(Type, "PCTSP"))
+        ProblemType = PCTSP;
     else if (!strcmp(Type, "TOUR")) {
         ProblemType = TOUR;
         eprintf("TYPE: Type not implemented: %s", Type);
@@ -2081,11 +2143,13 @@ static void Read_TYPE()
         ProblemType == RCTVRP ||
         ProblemType == RCTVRPTW ||
         ProblemType == SOP ||
+        ProblemType == PCTSP ||
         ProblemType == TRP ||
         ProblemType == TSPDL ||
         ProblemType == TSPTW ||
         ProblemType == VRPB ||
-        ProblemType == VRPBTW || ProblemType == VRPPD;
+        ProblemType == VRPBTW || 
+        ProblemType == VRPPD;
 }
 
 static void Read_SERVICE_TIME()

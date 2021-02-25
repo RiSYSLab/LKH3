@@ -13,7 +13,10 @@ int Distance_MTSP(Node * Na, Node * Nb)
     if (Fixed(Na, Nb))
         return 0;
     if (Forbidden(Na, Nb))
+    {
+        Forbidden(Na, Nb);
         return M;
+    }    
     if (Na->DepotId != 0 && Nb->DepotId != 0)
         return 0;
     if (DimensionSaved != Dimension) {
@@ -38,10 +41,13 @@ int Distance_MTSP(Node * Na, Node * Nb)
             Nb = Nb->Id <= DimensionSaved ? Depot :
                 &NodeSet[Depot->Id + DimensionSaved];
     } else if (Dim != Dimension) {
-        if (Na->Id > Dim)
-            Na = Depot;
-        if (Nb->Id > Dim)
-            Nb = Depot;
+        if (ProblemType == CTSP)
+        {
+            if (Na->Id > Dim)
+                Na = Depot;
+            if (Nb->Id > Dim)
+                Nb = Depot;
+        }   
     }
     return OldDistance(Na, Nb);
 }

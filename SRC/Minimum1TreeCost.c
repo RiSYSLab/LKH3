@@ -28,6 +28,7 @@ GainType Minimum1TreeCost(int Sparse)
     }
     while ((N = N->Suc) != FirstNode);
     Sum *= -2;
+    
     while ((N = N->Suc) != FirstNode) {
         N->V++;
         N->Dad->V++;

@@ -26,15 +26,16 @@ GainType CTSP_InitialTour()
         }
     } while ((N = NextN) != Depot);
     Cost = 0;
-    N = FirstNode;
-    do
-        Cost += C(N, N->Suc) - N->Pi - N->Suc->Pi;
+    N = FirstNode;  
+    do{Cost += C(N, N->Suc) - N->Pi - N->Suc->Pi;
+       printff("%d ", N->Id);}
     while ((N = N->Suc) != FirstNode);
+    printff("%d", N->Id);
     Cost /= Precision;
     CurrentPenalty = PLUS_INFINITY;
     CurrentPenalty = Penalty();
     if (TraceLevel >= 1) {
-        if (Salesmen > 1 || ProblemType == SOP)
+        if (Salesmen > 1 || ProblemType == SOP || ProblemType == PCTSP)
             printff(GainFormat "_" GainFormat, CurrentPenalty, Cost);
         else
             printff(GainFormat, Cost);

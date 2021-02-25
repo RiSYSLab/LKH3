@@ -67,6 +67,7 @@ void PrintParameters()
             QUICK_BORUVKA ? "QUICK-BORUVKA" :
             InitialTourAlgorithm == SIERPINSKI ? "SIERPINSKI" :
             InitialTourAlgorithm == SOP_ALG ? "SOP" :
+            InitialTourAlgorithm == PCTSP_ALG ? "PCTSP" :
             InitialTourAlgorithm == TSPDL_ALG ? "TSPDL" : "WALK");
     printff("%sINITIAL_TOUR_FILE = %s\n",
             InitialTourFileName ? "" : "# ",

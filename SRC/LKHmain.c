@@ -13,14 +13,17 @@ int main(int argc, char *argv[])
     Node *N;
     int i;
 
-    /* Read the specification of the problem */
-    if (argc >= 2)
-        ParameterFileName = argv[1];
+    //if (argc >= 2)
+    //   ParameterFileName = argv[1];
+    ParameterFileName = "SRC/parameterfile.txt";
     ReadParameters();
     MaxMatrixDimension = 20000;
     MergeWithTour = Recombination == IPT ? MergeWithTourIPT :
         MergeWithTourGPX2;
     ReadProblem();
+
+
+
     if (SubproblemSize > 0) {
         if (DelaunayPartitioning)
             SolveDelaunaySubproblems();
@@ -39,6 +42,9 @@ int main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
     AllocateStructures();
+
+  
+
     if (ProblemType == TSPTW)
         TSPTW_Reduce();
     if (ProblemType == VRPB || ProblemType == VRPBTW)
@@ -46,7 +52,9 @@ int main(int argc, char *argv[])
     if (ProblemType == PDPTW)
         PDPTW_Reduce();
     CreateCandidateSet();
-    InitializeStatistics();
+
+    //printNodeSet(&printCandidateSet);
+    //InitializeStatistics();
 
     if (Norm != 0 || Penalty) {
         Norm = 9999;
@@ -64,7 +72,7 @@ int main(int argc, char *argv[])
         WriteTour(TourFileName, BestTour, BestCost);
         Runs = 0;
     }
-
+    
     /* Find a specified number (Runs) of local optima */
 
     for (Run = 1; Run <= Runs; Run++) {
@@ -120,6 +128,8 @@ int main(int argc, char *argv[])
             (CurrentPenalty == BestPenalty && Cost < BestCost)) {
             BestPenalty = CurrentPenalty;
             BestCost = Cost;
+            Penalty();
+            //printPCTSPRoute();
             RecordBetterTour();
             RecordBestTour();
             WriteTour(TourFileName, BestTour, BestCost);
@@ -206,6 +216,7 @@ int main(int argc, char *argv[])
         ProblemType == BWTSP ||
         ProblemType == CCVRP ||
         ProblemType == CTSP ||
+        ProblemType == PCTSP ||
         ProblemType == CVRP ||
         ProblemType == CVRPTW ||
         ProblemType == MLP ||
@@ -217,6 +228,7 @@ int main(int argc, char *argv[])
         ProblemType == PDTSP ||
         ProblemType == PDTSPL ||
         ProblemType == PDPTW ||
+        ProblemType == PCTSP ||
         ProblemType == RCTVRP ||
         ProblemType == RCTVRPTW ||
         ProblemType == SOP ||

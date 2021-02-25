@@ -39,10 +39,10 @@
     { Link((a)->Pred, (a)->Suc); Link(a, a); Link((b)->Pred, a); Link(a, b); }
 #define SLink(a, b) { (a)->Suc = (b); (b)->Pred = (a); }
 
-enum Types { TSP, ATSP, SOP, TSPTW, HCP, CCVRP, CVRP, ACVRP, CVRPTW, RCTVRP, 
+enum Types { TSP, ATSP, SOP, PCTSP, TSPTW, HCP, CCVRP, CVRP, ACVRP, CVRPTW, RCTVRP, 
     RCTVRPTW, VRPB, VRPBTW, PDPTW, PDTSP, PDTSPF, PDTSPL, VRPPD, OVRP,
     ONE_PDTSP, MLP, M_PDTSP, M1_PDTSP, TSPDL, TSPPD, TOUR, HPP, BWTSP, TRP,
-    CTSP, STTSP
+    CTSP, GCTSP, STTSP
 };
 enum CoordTypes { TWOD_COORDS, THREED_COORDS, NO_COORDS };
 enum EdgeWeightTypes { EXPLICIT, EUC_2D, EUC_3D, MAX_2D, MAX_3D,
@@ -55,7 +55,7 @@ enum EdgeWeightFormats { FUNCTION, FULL_MATRIX, UPPER_ROW, LOWER_ROW,
     UPPER_DIAG_COL, LOWER_DIAG_COL
 };
 enum CandidateSetTypes { ALPHA, DELAUNAY, NN, POPMUSIC, QUADRANT };
-enum InitialTourAlgorithms { BORUVKA, CTSP_ALG, CVRP_ALG, GREEDY, MOORE,
+enum InitialTourAlgorithms { BORUVKA, CTSP_ALG, PCTSP_ALG, CVRP_ALG, GREEDY, MOORE,
     MTSP_ALG, NEAREST_NEIGHBOR, QUICK_BORUVKA, SIERPINSKI, SOP_ALG,
     TSPDL_ALG, WALK
 };
@@ -153,6 +153,8 @@ struct Node {
     int Backhaul;
     int Serial;
     int Color;
+    int *Colors;
+    //int CurrentColor;
     double X, Y, Z;     /* Coordinates of the node */
     double Xc, Yc, Zc;  /* Converted coordinates */
     char Axis;  /* The axis partitioned when the node is part of a KDTree */
@@ -200,7 +202,7 @@ struct SwapRecord {
 };
 
 /* The Constraint structure ts used to represent a precedence constraint 
- * for a SOP instance */
+ * for a SOP or PCTSP instance */
 
 struct Constraint {
     Node *t1, *t2;    /* Node t1 has to precede node t2 */
@@ -208,6 +210,7 @@ struct Constraint {
     Constraint *Next; /* The next constraint in the list of constraints 
                          for a node */
 };
+
 
 int AscentCandidates;   /* Number of candidate edges to be associated
                            with each node during the ascent */
@@ -357,6 +360,7 @@ int Trial;      /* Ordinal number of the current trial */
 GainType TSPTW_CurrentMakespanCost;
 int TSPTW_Makespan;
 
+double start_time_exclude_initial;
 /* The following variables are read by the functions ReadParameters and 
    ReadProblem: */
 
@@ -411,6 +415,7 @@ int Distance_MAX_2D(Node * Na, Node * Nb);
 int Distance_MAX_3D(Node * Na, Node * Nb);
 int Distance_MTSP(Node * Na, Node * Nb);
 int Distance_SOP(Node * Na, Node * Nb);
+int Distance_PCTSP(Node* Na, Node* Nb);
 int Distance_SPECIAL(Node * Na, Node * Nb);
 int Distance_TOR_2D(Node * Na, Node * Nb);
 int Distance_TOR_3D(Node * Na, Node * Nb);
@@ -468,6 +473,7 @@ void CreateNNCandidateSet(int K);
 void Create_POPMUSIC_CandidateSet(int K);
 void CreateQuadrantCandidateSet(int K);
 GainType CTSP_InitialTour(void);
+GainType PCTSP_InitialTour(void);
 GainType CVRP_InitialTour(void);
 void eprintf(const char *fmt, ...);
 int Excludable(Node * ta, Node * tb);
@@ -525,6 +531,8 @@ GainType Penalty_ACVRP(void);
 GainType Penalty_BWTSP(void);
 GainType Penalty_CCVRP(void);
 GainType Penalty_CTSP(void);
+GainType Penalty_PCTSP(void);
+GainType Penalty_PCTSP_SOP(void);
 GainType Penalty_CVRP(void);
 GainType Penalty_CVRPTW(void);
 GainType Penalty_MTSP_MINMAX(void);
@@ -541,6 +549,8 @@ GainType Penalty_PDTSP(void);
 GainType Penalty_PDTSPF(void);
 GainType Penalty_PDTSPL(void);
 GainType Penalty_SOP(void);
+GainType Penalty_PCTSP(void);
+GainType Penalty_GCTSP(void);
 GainType Penalty_RCTVRP(void);
 GainType Penalty_TRP(void);
 GainType Penalty_TSPDL(void);
@@ -583,9 +593,12 @@ int SolveSubproblem(int CurrentSubproblem, int Subproblems,
 void SolveSubproblemBorderProblems(int Subproblems, GainType * GlobalCost);
 void SolveTourSegmentSubproblems(void);
 GainType SOP_InitialTour(void);
+GainType PCTSP_InitialTour(void);
 GainType SOP_RepairTour(void);
+GainType PCTSP_RepairTour(void);
 void STTSP2TSP(void);
 void SOP_Report(GainType Cost);
+void PCTSP_Report(GainType Cost);
 int SpecialMove(Node * t1, Node * t2, GainType * G0, GainType * Gain);
 void StatusReport(GainType Cost, double EntryTime, char * Suffix);
 void StoreTour(void);
@@ -601,4 +614,9 @@ void WriteCandidates(void);
 void WritePenalties(void);
 void WriteTour(char * FileName, int * Tour, GainType Cost);
 
+// for debug
+void printNodeSet(void(*func)(const Node*));
+void printCandidateSet(const Node* node);
+void printPCTSPRoute();
+void printConstraints();
 #endif

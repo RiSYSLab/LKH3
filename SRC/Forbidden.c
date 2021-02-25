@@ -19,10 +19,23 @@ int Forbidden(Node * Na, Node * Nb)
     if (Asymmetric &&
         (Na->Id <= DimensionSaved) == (Nb->Id <= DimensionSaved))
         return 1;
-    if (ProblemType == SOP &&
+    if ((ProblemType == SOP || ProblemType == PCTSP) &&
         ((Na->Id == 1 && Nb->Id == Dimension + 1) ||
          (Na->Id == Dimension + 1 && Nb->Id == 1)))
         return 1;
+    if (ProblemType == PCTSP)
+    {
+        int summ = 0;
+        for (int i = 1; i <= Salesmen; i++)
+        {
+            summ = summ + (Na->Colors[i] && Nb->Colors[i]);           
+        }
+        if (summ == 0)
+        {
+            return 1;
+        }
+            
+    }
     if (Na->Head && !FixedOrCommon(Na, Nb) &&
         (Na->Head == Nb->Head ||
          (Na->Head != Na && Na->Tail != Na) ||

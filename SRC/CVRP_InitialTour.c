@@ -115,7 +115,7 @@ GainType CVRP_InitialTour()
     Cost = BestCost;
     CurrentPenalty = BestPenalty;
     if (TraceLevel >= 1) {
-        if (Salesmen > 1 || ProblemType == SOP)
+        if (Salesmen > 1 || ProblemType == SOP || ProblemType == PCTSP)
             printff(GainFormat "_" GainFormat, CurrentPenalty, Cost);
         else
             printff(GainFormat, Cost);

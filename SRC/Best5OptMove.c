@@ -78,7 +78,7 @@ Node *Best5OptMove(Node * t1, Node * t2, GainType * G0, GainType * Gain)
             if (X4 == 1 && !Forbidden(t4, t1) &&
                 (CurrentPenalty != 0 ||
                  TSPTW_Makespan || !c || G2 - c(t4, t1) > 0)) {
-                *Gain = G2 - C(t4, t1);
+                *Gain = G2 - C(t4, t1);             
                 if (CurrentPenalty != 0 || TSPTW_Makespan || *Gain > 0) {
                     Make2OptMove(t1, t2, t3, t4);
                     if (Improvement(Gain, t1, t2))

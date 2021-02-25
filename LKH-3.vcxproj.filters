@@ -489,6 +489,21 @@
     <ClCompile Include="src\BestSpecialOptMove.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SRC\PCTSP_InitialTour.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SRC\debug.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SRC\Penalty_GCTSP.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SRC\Penalty_PCTSP.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SRC\PCTSP_RepairTour.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\Genetic.h">
@@ -501,9 +516,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\include\GeoConversion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\LKH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\include\BIT.h">
@@ -522,6 +534,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\include\gpx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SRC\INCLUDE\LKH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

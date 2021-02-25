@@ -1,4 +1,5 @@
 #include "LKH.h"
+#include "Segment.h"
 
 /*
  * The ChooseInitialTour function generates a pseudo-random initial tour.
@@ -42,9 +43,12 @@ void ChooseInitialTour()
             KSwapKick(KickType);
         return;
     }
+
+    double start_time = GetTime();
     if (Trial == 1 && (!FirstNode->InitialSuc || InitialTourFraction < 1)) {
         if (InitialTourAlgorithm == BORUVKA ||
             InitialTourAlgorithm == CTSP_ALG ||
+            InitialTourAlgorithm == PCTSP_ALG ||
             InitialTourAlgorithm == CVRP_ALG ||
             InitialTourAlgorithm == GREEDY ||
             InitialTourAlgorithm == MOORE ||
@@ -59,6 +63,8 @@ void ChooseInitialTour()
                 SFCTour(InitialTourAlgorithm) :
                 InitialTourAlgorithm == CTSP_ALG ?
                 CTSP_InitialTour() :
+                InitialTourAlgorithm == PCTSP_ALG ?
+                PCTSP_InitialTour() :
                 InitialTourAlgorithm == CVRP_ALG ?
                 CVRP_InitialTour() :
                 InitialTourAlgorithm == MTSP_ALG ?
@@ -71,11 +77,39 @@ void ChooseInitialTour()
                 BetterCost = Cost;
                 RecordBetterTour();
             }
+           /* if (ProblemType == PCTSP)
+            {
+                CurrentPenalty = PLUS_INFINITY;
+                CurrentPenalty = BetterPenalty = Penalty ? Penalty() : 0;
+                BetterCost = Cost;
+                RecordBetterTour();
+                if ( CurrentPenalty == 0 || (CurrentPenalty < BestPenalty || (CurrentPenalty == BestPenalty && Cost < BestCost)))
+                {
+                    WriteTour(OutputTourFileName, BestTour, BestCost);
+                }
+
+            }*/
+            if (ProblemType == PCTSP)
+            {
+                printff("PCTSP = ");
+                printff(GainFormat "_" GainFormat, CurrentPenalty, Cost);
+                printf("\n");
+                Cost = PCTSP_RepairTour();
+                CurrentPenalty = Penalty();
+                printff("PCTSP = ");
+                printff(GainFormat "_" GainFormat, CurrentPenalty, Cost);
+            }
+                
+            start_time_exclude_initial += GetTime() - start_time;
+            printf("\n");
+            printf("start_time_exclude_initial is %lf, left is %lf\n", start_time_exclude_initial,
+                TimeLimit - (GetTime() - start_time_exclude_initial));
             if (!FirstNode->InitialSuc)
                 return;
         }
-    }
     
+    }
+
 Start:
     /* Mark all nodes as "not chosen" by setting their V field to zero */
     N = FirstNode;

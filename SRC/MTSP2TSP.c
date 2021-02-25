@@ -1,6 +1,8 @@
 #include "LKH.h"
 #include "Heap.h"
 
+
+
 void MTSP2TSP()
 {
     Node *N = 0;
@@ -91,12 +93,58 @@ void MTSP2TSP()
             Heap = 0;
         }
     }
-    for (i = Dim + 1; i <= DimensionSaved; i++) {
+
+    if (ProblemType == PCTSP) {
+        int NewDimension = Dimension;
+        Node* Prev = 0;
+        Node* OldNodeSet = NodeSet;
+        // Dim = NewDimension - Salesmen + 1;
+        
+        Depot = &NodeSet[MTSPDepot];
+        Depot->Color = 0;
+        FirstNode = &NodeSet[1];
+
+        // duplicate depots
+        for(int i = Dim + 1; i <= Dim + Salesmen -1; ++i){
+            N = &NodeSet[i];
+            free(N->Colors);
+            *N = *Depot;
+        }
+
+        for(int i = 1; i <= NewDimension; ++i, Prev = N){
+            N = &NodeSet[i];
+            N->Id = i;
+
+            if(i <= DimensionSaved){
+                N->FixedTo1 = &NodeSet[i + DimensionSaved];
+                NodeSet[i + DimensionSaved].FixedTo1 = N;
+            }
+
+            if (i == 1)
+                FirstNode = N;
+            else
+                Link(Prev, N);
+            N->Special = 0;
+        }
+        Link(N, FirstNode);
+        if (MergeTourFiles >= 1) {
+            for (i = Dimension + 1; i <= NewDimension; i++) {
+                N = &NodeSet[i];
+                N->MergeSuc =
+                    (Node**)calloc(MergeTourFiles, sizeof(Node*));
+            }
+        }
+    }
+
+
+    for (i = Dim + 1; i <= Dim + Salesmen - 1; i++) {
         NodeSet[i].Earliest = Depot->Earliest;
         NodeSet[i].Latest = Depot->Latest;
         NodeSet[i].Demand = Depot->Demand;
     }
-    OldDistance = Distance;
-    Distance = Distance_MTSP;
+    if (ProblemType != PCTSP) {
+        OldDistance = Distance;
+        Distance = Distance_MTSP;
+    }
     WeightType = SPECIAL;
 }

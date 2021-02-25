@@ -24,6 +24,7 @@ GainType FindTour()
     Node *t;
     int i;
     double EntryTime = GetTime();
+    start_time_exclude_initial = GetTime();
 
     t = FirstNode;
     do
@@ -49,11 +50,18 @@ GainType FindTour()
         CurrentPenalty = BetterPenalty = Penalty ? Penalty() : 0;
     }
     for (Trial = 1; Trial <= MaxTrials; Trial++) {
-        if (GetTime() - EntryTime >= TimeLimit) {
+        //if (GetTime() - EntryTime >= TimeLimit) {
+        //    if (TraceLevel >= 1)
+        //        printff("*** Time limit exceeded ***\n");
+        //    break;
+        //}
+        if (GetTime() - start_time_exclude_initial >= TimeLimit) {
             if (TraceLevel >= 1)
                 printff("*** Time limit exceeded ***\n");
             break;
         }
+       // printf("start_time_exclude_initial is %lf, left is %lf\n", start_time_exclude_initial,
+       //     TimeLimit - (GetTime() - start_time_exclude_initial));
         /* Choose FirstNode at random */
         if (Dimension == DimensionSaved)
             FirstNode = &NodeSet[1 + Random() % Dimension];
@@ -61,9 +69,14 @@ GainType FindTour()
             for (i = Random() % Dimension; i > 0; i--)
                 FirstNode = FirstNode->Suc;
         ChooseInitialTour();
+
         if ((ProblemType == SOP || ProblemType == M1_PDTSP) &&
             (InitialTourAlgorithm != SOP_ALG || Trial > 1))
             SOP_RepairTour();
+        if ((ProblemType == PCTSP) &&
+            (InitialTourAlgorithm != PCTSP_ALG || Trial > 1))
+            PCTSP_RepairTour();
+
         Cost = LinKernighan();
         if (FirstNode->BestSuc && !TSPTW_Makespan) {
             /* Merge tour with current best tour */
@@ -90,7 +103,9 @@ GainType FindTour()
             RecordBetterTour();
             if (BetterPenalty < BestPenalty ||
                 (BetterPenalty == BestPenalty && BetterCost < BestCost))
+            {
                 WriteTour(OutputTourFileName, BetterTour, BetterCost);
+            }
             if (StopAtOptimum) {
                 if (ProblemType != CCVRP && ProblemType != TRP &&
                     MTSPObjective != MINMAX &&

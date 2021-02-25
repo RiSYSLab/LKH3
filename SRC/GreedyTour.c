@@ -234,7 +234,7 @@ GainType GreedyTour()
     CurrentPenalty = PLUS_INFINITY;
     CurrentPenalty = Penalty ? Penalty() : 0;
     if (TraceLevel >= 1) {
-        if (Salesmen > 1 || ProblemType == SOP)
+        if (Salesmen > 1 || ProblemType == SOP || ProblemType == PCTSP)
             printff(GainFormat "_" GainFormat, CurrentPenalty, Cost);
         else
             printff(GainFormat, Cost);

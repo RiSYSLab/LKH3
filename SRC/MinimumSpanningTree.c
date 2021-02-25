@@ -80,6 +80,7 @@ void MinimumSpanningTree(int Sparse)
             N->Cost = INT_MAX;
         /* Loop as long as there a more nodes to include in the tree */
         while ((N = Blue->Suc) != FirstNode) {
+            //printf(" %d", N->Id);
             int Min = INT_MAX;
             /* Update all non-blue nodes (the successors of Blue in the list) */
             do {
@@ -89,10 +90,21 @@ void MinimumSpanningTree(int Sparse)
                     NextBlue = N;
                     Min = INT_MIN;
                 } else {
+                    /*printf("!Forbidden(Blue, N)=");
+                    printf("%d", !Forbidden(Blue, N));
+                    printf(";!c="); 
+                    printf("%d",!c);
+                    printf(";D(Blue, N)=");
+                    printf("%d", D(Blue, N));*/
                     if (!Blue->FixedTo2 && !N->FixedTo2 &&
                         !Forbidden(Blue, N) &&
                         (!c || c(Blue, N) < N->Cost) &&
                         (d = D(Blue, N)) < N->Cost) {
+                        /*printf(" %d",Blue->Id);
+                        printf("->");
+                        printf(" %d", N->Id);
+                        printf(" %lld", d);
+                        printf("\n");*/
                         N->Cost = d;
                         N->Dad = Blue;
                     }
@@ -101,10 +113,19 @@ void MinimumSpanningTree(int Sparse)
                         NextBlue = N;
                     }
                 }
+             //   printf("  %d", N->Id);
             }
             while ((N = N->Suc) != FirstNode);
             Follow(NextBlue, Blue);
             Blue = NextBlue;
+            //printf("\n");
         }
     }
+    /*N = FirstNode;
+    do {
+        printf(" %d", N->Id);
+        printf(" %d", N->Cost);
+        printf("\n");
+    } while ((N = N->Suc) != FirstNode);
+    printf("\n");*/
 }
